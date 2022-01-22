@@ -1,12 +1,12 @@
 # Build Kubernetes Lab
-The simple way to build kubernetes cluster. 
+The simple way to build Kubernetes cluster. This is for dev-use if you want to build a minimum production environment at least use 3 masters 3 workers setup.
 
-## Step0: Pre-require
-* GCP Account
-* gcloud SDK
-* Create a GCP Project **(In this example I use k8s-lab)**
+## Step 0: Pre-require
+* GCP Account: Google gives user $300 to try their platform. In my opinion, it's awesome.
+* gcloud SDK: You need this command-line tool to setup VM and network.
+* Create a GCP Project
 
-## Step1: Project setup
+## Step 1: Project setup
 ### Init gcloud
 ```
 gloud init
@@ -24,7 +24,7 @@ gcloud config set compute/zone asia-east1-a
 gcloud config set project <PROJECT_ID>
 ```
 
-## Step2: Network 
+## Step 2: Network 
 ### Create VPC
 ```
 gcloud compute networks create k8s-lab --subnet-mode custom
@@ -79,7 +79,7 @@ gcloud compute addresses list --filter="name=('k8s-lab')"
 NAME     ADDRESS/RANGE   TYPE      PURPOSE  NETWORK  REGION      SUBNET  STATUS
 k8s-lab  35.236.182.103  EXTERNAL                    asia-east1          RESERVED
 ```
-## Step3: VM
+## Step 3: VM
 ### Create 1 Controller
 ```
 gcloud compute instances create controller \
@@ -124,7 +124,7 @@ worker-1    asia-east1-a  n1-standard-8               10.240.0.21  35.236.159.39
 worker-2    asia-east1-a  n1-standard-8               10.240.0.22  35.221.187.201  RUNNING
 ```
 
-## Step4: Kubernetes
+## Step 4: Kubernetes
 ### SSH
 ```
 gcloud compute ssh controller
@@ -134,6 +134,7 @@ gcloud compute ssh worker-2
 ```
 
 ### Close swap
+Important! MUST close swap!
 ```
 swapoff -a
 ```
@@ -147,7 +148,7 @@ sudo systemctl enable docker.service
 sudo apt install -y apt-transport-https curl
 }
 ```
-### Install package we need
+### Install kubelet kubeadm kubectl
 ```
 {
 sudo apt-get update
@@ -160,7 +161,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 }
 ```
 
-## Error solving
+### Error solving
 If kubelet isn't running you need to fix that before using kubeadm!
 ```
 sudo touch /etc/docker/daemon.json
@@ -175,13 +176,14 @@ sudo systemctl restart docker
 sudo systemctl restart kubelet
 }
 ```
-### Create on controller node
+### Create seed on controller node
 Before using kubeadm docker, kubelet need alive!
 ```
 sudo kubeadm init --pod-network-cidr 192.168.0.0/16
 ```
 
 ### kubeadm join workers
+You'll get link that allow to to join workers to controller.
 ```
 NAME         STATUS     ROLES                  AGE     VERSION
 controller   NotReady   control-plane,master   22m     v1.23.2
@@ -204,16 +206,12 @@ worker-1     Ready    <none>                 5m48s   v1.23.2
 worker-2     Ready    <none>                 5m50s   v1.23.2
 ```
 ## Clean
-```
-gcloud -q compute instances delete \
-  controller \
-  worker-0 worker-1 worker-2 \
-  --zone $(gcloud config get-value compute/zone)
-```
+Just delete the project.
+
 ## Reference
-[General-purpose machine family](https://cloud.google.com/compute/docs/general-purpose-machines#n2_machines)
-[Self-managed Kubernetes in Google Compute Engine (GCE)](https://projectcalico.docs.tigera.io/getting-started/kubernetes/self-managed-public-cloud/gce)
-[Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way)    
+* [General-purpose machine family](https://cloud.google.com/compute/docs/general-purpose-machines#n2_machines)
+* [Self-managed Kubernetes in Google Compute Engine (GCE)](https://projectcalico.docs.tigera.io/getting-started/kubernetes/self-managed-public-cloud/gce)
+* [Kubernetes The Hard Way](https://github.com/kelseyhightower/kubernetes-the-hard-way)    
     
 
 
