@@ -206,7 +206,7 @@ worker-0     Ready    <none>                 11m     v1.23.2
 worker-1     Ready    <none>                 5m48s   v1.23.2
 worker-2     Ready    <none>                 5m50s   v1.23.2
 ```
-## ☸ Step 6: Clean
+## ☸ Step 5: Clean
 Just delete the project.
 
 ## ☸ Reference
